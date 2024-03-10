@@ -1,6 +1,4 @@
-# import django_filters
 from django.db.models import Q
-from django_filters.rest_framework import DjangoFilterBackend, filters
 from django_filters import FilterSet, DateFilter, CharFilter
 
 from apps.core.models import Post
