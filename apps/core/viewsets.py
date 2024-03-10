@@ -3,7 +3,6 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 
 from django.db import transaction
-from django.db.models import Q
 from django.utils.timezone import make_aware
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -12,7 +11,6 @@ from apps.core.filters import PostFilter
 
 from apps.core.models import Comment, Post
 from apps.core.serializers import CommentsSerializer, CommentsSerializerGET, PostSerializer, PostSerializerGET, PostSerializerPOST
-from apps.exceptions import InvalidAutorException
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -37,7 +35,7 @@ class PostViewSet(ModelViewSet):
             return PostSerializerPOST
         return super().get_serializer_class()
     
-    @method_decorator(cache_page(60))
+    @method_decorator(cache_page(30))
     @method_decorator(vary_on_cookie)
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -51,12 +49,10 @@ class PostViewSet(ModelViewSet):
     
     @transaction.atomic
     def update(self, request, *args, **kwargs):
-        if self.get_object().autor != request.user:
-            raise InvalidAutorException('Você não tem permissão para alterar esta postagem', 403)
         return super().update(request, partial=True, *args, **kwargs)
 
-    # @method_decorator(cache_page(600))
-    # @method_decorator(vary_on_cookie)
+    @method_decorator(cache_page(30))
+    @method_decorator(vary_on_cookie)
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
         # queryset = super().get_queryset().filter(id=self.get_object().id).prefetch_related('id_comentarios')
