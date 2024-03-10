@@ -1,5 +1,6 @@
 import datetime
 import json
+import time
 from django.test import TestCase
 from rest_framework.test import APIClient
 from django.contrib.auth.models import User
@@ -69,6 +70,33 @@ class TestPosts(TestCase):
     def test_post_list_success(self):
         """ Teste de sucesso na listagem de postagens"""
         response = self.client.get(f'/api/posts/', {}, headers={"Authorization":f'Bearer {self.login.get("access")}'})
+        self.assertTrue(response.status_code == 200) 
+        self.assertTrue(isinstance(response.json(), list))
+
+    def test_post_list_success_cache(self):
+        """ 
+        Teste de sucesso na listagem de postagens com cache 
+        Para verificar se o CACHE funcionou, foi colocado um SLEEP na função
+        com isso é feito três chamadas no endpoint:
+        1 - Salvo a quantidade de postagens atual
+        2 - Salvo a quantidade de postagens após ser feito um create no banco de dados
+        3 - Salvo a quantidade de postagens após 45 segs depois do create no banco de dados
+        Por fim, é feito uma comparação se a quantidade de postagens do item 1 é igual a do item 2,
+        em seguida é verificado também se a quantidade de postagens do item 3 é maior que a do item 1
+        ou item 2, caso sim é por que a implementação do cache funcionou.
+        """
+        response = self.client.get(f'/api/posts/', {}, headers={"Authorization":f'Bearer {self.login.get("access")}'})
+        total_data_um = len(response.json())
+        nova_postagem = Post.objects.create(
+            **self.dados_post_success
+        )
+        response = self.client.get(f'/api/posts/', {}, headers={"Authorization":f'Bearer {self.login.get("access")}'})
+        total_data_dois = len(response.json())
+        time.sleep(45)
+        response = self.client.get(f'/api/posts/', {}, headers={"Authorization":f'Bearer {self.login.get("access")}'})
+        total_data_tres = len(response.json())
+        condicao = total_data_um == total_data_dois and (total_data_um or total_data_dois) < total_data_tres
+        self.assertTrue(condicao)
         self.assertTrue(response.status_code == 200) 
         self.assertTrue(isinstance(response.json(), list))
 
