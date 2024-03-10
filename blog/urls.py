@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 from apps.core.routers import router
+from apps.autenticacao.routers import router as router_auth
+
 
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.views import get_schema_view
@@ -41,6 +43,7 @@ urlpatterns = [
     path('', include('apps.core.urls')),
     path('autenticacao/', include('apps.autenticacao.urls')),
     path('api/', include(router.urls)),
+    path('api-users/', include(router_auth.urls)),
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),

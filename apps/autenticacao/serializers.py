@@ -1,13 +1,13 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
-from rest_framework.serializers import ModelSerializer, ValidationError
-# from pesquisa.settings import SIMPLE_JWT
+from rest_framework.serializers import ModelSerializer
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 
 
 class CustomSerializerAccessToken(TokenObtainPairSerializer):
 
     def validate(self, attr):
         data = super().validate(attr)
-        # data['tempo_vida'] = SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME')
         data['usuario'] = self.user.get_username()
         return data
     
@@ -16,5 +16,29 @@ class CustomSerializerRefreshToken(TokenRefreshSerializer):
 
     def validate(self, attr):
         data = super().validate(attr)
-        # data['tempo_vida'] = SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME')
         return data
+    
+
+class UserSerializerGET(ModelSerializer):
+    class Meta:
+        fields = [
+            'id',
+            'username',
+            'email'
+        ]
+        model = User
+
+
+class UserSerializerPOST(ModelSerializer):
+    class Meta:
+        fields = [
+            'id',
+            'username',
+            'password',
+            'email'
+        ]
+        model = User
+
+    def validate_password(self, attrs):
+        attrs = make_password(attrs)
+        return attrs

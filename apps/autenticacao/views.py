@@ -1,13 +1,16 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.models import Permission, Group
-from django.contrib import messages
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 
-from apps.exceptions import InvalidUserException
+from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from apps.autenticacao.serializers import CustomSerializerAccessToken, CustomSerializerRefreshToken
 
 @api_view(['get', 'post'])
 @permission_classes([])
@@ -30,15 +33,16 @@ def logout_page(request):
     logout(request)
     return redirect('login')
 
-
-from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
-
-from rest_framework_simplejwt.views import TokenObtainPairView
-
-from apps.autenticacao.serializers import CustomSerializerAccessToken, CustomSerializerRefreshToken
+def add_user(request):
+    return render(request, 'user/add.html')
 
 class CustomAccessToken(TokenObtainPairView):
+    """ 
+    Ao utilizar esta uma classe custom para obter o token de acesso, 
+    concede ao desenvolvedor a opção de poder customizar os retornos
+    podendo adicionar outros campos que possa considerar úteis, em outras palavras,
+    permite adicionar novas lógicas.
+    """
     serializer_class = CustomSerializerAccessToken
 
 
