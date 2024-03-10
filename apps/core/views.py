@@ -10,7 +10,6 @@ def index(request):
 
 @login_required(login_url='login')
 def view_post(request, pk):
-    print(pk)
     data = {
         'id':pk,
         'dono': True if Post.objects.filter(autor=request.user, id=pk) else False
