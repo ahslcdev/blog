@@ -1,0 +1,40 @@
+<div class="col-12">
+    <form action="" method="POST" id="form-post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="form-floating mb-3">
+                        <input required type="text" name="titulo" id="titulo" maxlength="255" class="form-control"
+                            placeholder="Título"">
+                        <label for="titulo">Título</label>
+                        <!-- <span class="invalid-feedback">Informe o nome do cliente</span> -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="form-floating mb-3">
+                        <input required type="datetime-local" name="data_publicacao" id="data_publicacao" maxlength="255" class="form-control"
+                            placeholder="Data de publicação">
+                        <label for="data_publicacao">Data de publicação</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <div class="form-floating mb-3">
+                        <!-- <textarea required name="conteudo" id="conteudo" class="form-control" cols="30" rows="10"></textarea> -->
+                        <input required type="text" name="conteudo" id="conteudo" maxlength="255"
+                            class="form-control" placeholder="Conteúdo">
+                        <label for="conteudo">Conteúdo</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </div>
+    </form>
+</div>

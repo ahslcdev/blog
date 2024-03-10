@@ -1,0 +1,62 @@
+<div class="col-12">
+    <form action="" method="POST" id="form-comment">
+        {% csrf_token %}
+            <div class="col-md-12">
+                <div class="form-group">
+                    <div class="form-floating mb-3">
+                        <textarea required name="conteudo_comment" id="conteudo_comment" class="form-control" cols="30" rows="10"></textarea>
+                        <label for="conteudo_comment">Adicionar Comentário</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Adicionar</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% include 'includes/scripts.html' %}
+    <script>
+        $(document).ready(function(){
+            let id = '{{id}}'
+            $('#form-comment').on('submit', function(){
+                event.preventDefault();
+                $.ajax({
+                    url: `/api/comments/`,
+                    method: 'POST',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data:JSON.stringify(
+                        {
+                            "conteudo":$("#conteudo_comment").val(),
+                            "id_postagem": id
+                        }
+                    ),
+                    success: function(response){
+                        alert('Comentário adicionado com sucesso.')
+                        console.log(response)
+                        response = response[0]
+                        $('#comentarios').append(
+                            $(
+                                `<div class="col-12 pb-2">
+                                        <div class="card">
+                                        <div class="card-header d-flex justify-content-between deletar-comment">${response.get_autor}
+                                        <a href="/comments/change/${response.id}" class="editar-comment" title="Editar comentário">Editar</a>
+                                        </div>
+                                        <div class="card-body">
+                                        ${response.conteudo}
+                                        </div>
+                                        <div class="card-footer">Data: ${response.get_criado_em}</div>
+                                        </div>
+                                    </div>`
+                                    , {
+                        }));
+                    },
+                    error: function(xhr, status, error) {
+                        let e = JSON.parse(xhr.responseText)
+                        alert(e.errors.detalhes[0].message)
+                    }
+                })
+            })
+        })
+    </script>

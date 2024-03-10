@@ -1,0 +1,84 @@
+{% extends 'layout/base.html' %}
+
+{% block main %}
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-between">
+        <h5>
+            {% if dono %}
+                Editar Comentário
+            {% endif %}
+        </h5>
+        
+        {% if dono %}
+            <a href="#" class="nav-link" id="deletar-comment" title="Excluir postagem">
+                <i class="cil-arrow-circle-left"></i>
+                Deletar</a>
+        {% endif %}
+            
+    </div>
+    <div class="col-12 mb-3">
+        <div class="dropdown-divider"></div>
+    </div>
+    
+    {% include 'comments/form.html' %}
+    
+</div>
+    
+{% include 'includes/scripts.html' %}
+    <script>
+        $(document).ready(function(){
+            let id = '{{id}}'
+            $.ajax({
+                    url: `/api/comments/${id}/`,
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function(response){
+                        console.log(response)
+                        $("#conteudo_comment").val(response.conteudo)
+                    },
+                    error:function(e){
+                        alert('Error ao efetuar o login, verifique as credenciais de acesso.')
+                    }
+                })
+            $('#form-comment').on('submit', function(){
+                event.preventDefault();
+                $.ajax({
+                    url: `/api/comments/${id}/`,
+                    method: 'PUT',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data:JSON.stringify(
+                        {
+                            "conteudo":$("#conteudo_comment").val()
+                        }
+                    ),
+                    success: function(){
+                        alert('Comentário atualizado com sucesso.')
+                    },
+                    error: function(xhr, status, error) {
+                        let e = JSON.parse(xhr.responseText)
+                        alert(e.errors.detalhes[0].message)
+                    }
+                })
+            })
+            $('#deletar-comment').on('click', function(){
+                event.preventDefault();
+                $.ajax({
+                    url: `/api/comments/${id}/`,
+                    method: 'DELETE',
+                    dataType: 'json',
+                    success: function(){
+                        alert('Comentário deletada com sucesso.')
+                        window.history.back();
+                    },
+                    error: function(xhr, status, error) {
+                        let e = JSON.parse(xhr.responseText)
+                        alert(e.errors.detalhes[0].message)
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock main %}
+    

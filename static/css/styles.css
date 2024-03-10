@@ -1,0 +1,28 @@
+.link-post {
+    text-decoration: none;
+    color: black;
+}
+
+.link-post:hover{
+    color: #000;
+}
+
+nav {
+    background-color: #1b1e21;
+    color: #fff !important;
+}
+
+.btn-primary { 
+    background-color: #07E079 !important;
+    border: none !important;
+}
+
+/* body, .card-body {
+    background-color: #161616;
+} */
+
+/* .card-body {
+    color: #fff;
+} */
+
+/* #07e079 */

@@ -1,0 +1,51 @@
+{% extends 'layout/base.html' %}
+
+{% block main %}
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-between">
+        <h5>
+            Adicionar postagem
+        </h5>
+        <a href="#" class="nav-link" title="Voltar para a página anterior" onclick="voltar()">
+            <i class="cil-arrow-circle-left"></i>
+            Voltar</a>
+    </div>
+    <div class="col-12 mb-3">
+        <div class="dropdown-divider"></div>
+    </div>
+    {% include 'posts/form.html' %}
+    
+</div>
+    
+{% include 'includes/scripts.html' %}
+    <script>
+        $(document).ready(function(){
+            $('#form-post').on('submit', function(){
+                event.preventDefault();
+                $.ajax({
+                    url: `/api/posts/`,
+                    method: 'POST',
+                    dataType: 'json',
+                    contentType:"application/json",
+                    data:JSON.stringify(
+                        {
+                            "titulo":$("#titulo").val(),
+                            "conteudo":$("#conteudo").val(),
+                            "data_publicacao":$("#data_publicacao").val()
+                        }
+                    ),
+                    success: function(){
+                        window.location.replace('/')
+                        $("#success").addClass('alert alert-success').text('Postagem deletada com sucesso.')
+                    },
+                    error: function(xhr, status, error) {
+                        let e = JSON.parse(xhr.responseText)
+                        console.log(e.errors.detalhes[0])
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock main %}
+    

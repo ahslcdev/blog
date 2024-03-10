@@ -1,0 +1,11 @@
+django==4.2
+django-cors-headers==4.0.0
+django-filter==23.4
+djangorestframework==3.14.0
+djangorestframework-simplejwt==5.2.2
+drf-standardized-errors==0.12.6
+drf-yasg==1.21.7
+psycopg2-binary==2.9.6
+redis==5.0.1
+
+# django-import-export==3.2.0

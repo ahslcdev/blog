@@ -1,0 +1,123 @@
+{% extends 'layout/base.html' %}
+
+{% block main %}
+
+<div class="row">
+    <div class="col-12 d-flex justify-content-between">
+        <h2 id="titulo-postagem">
+        </h2>
+        
+        {% if dono %}
+            <a href="#" class="nav-link" id="deletar-postagem" title="Excluir postagem">
+                <i class="cil-arrow-circle-left"></i>
+                Deletar</a>
+        {% endif %}
+            
+    </div>
+    
+    <div class="col-12 mb-3">
+        <div class="dropdown-divider"></div>
+    </div>
+    {% if dono %}
+        {% include 'posts/form.html' %}
+    {% else %}
+        {% include 'posts/view.html' %}
+    {% endif %}
+
+    <div class="col-md-12 pt-3">
+        <div class="row" id="comentarios">
+            <h4>Comentários</h4>
+        </div>
+    </div>
+    
+    {% include 'comments/form.html' %}
+    
+</div>
+    
+{% include 'includes/scripts.html' %}
+    <script>
+        $(document).ready(function(){
+            let id = '{{id}}'
+            $.ajax({
+                    url: `/api/posts/${id}/`,
+                    dataType: 'json',
+                    success: function(response){
+                        // response = response[0]
+                        $("#titulo").val(response.titulo)
+                        $("#data_publicacao").val(response.get_data_pub)
+                        $("#conteudo").val(response.conteudo)
+
+                        $("#titulo").text(response.titulo)
+                        $("#titulo-postagem").text(response.titulo)
+                        $("#data_publicacao").text(response.get_data_pub)
+                        $("#conteudo").text(response.conteudo)
+                        if (response.id_comentarios){
+                            $.each(response.id_comentarios, function(index, element) {
+                                
+                                $('#comentarios').append(
+                                    $(
+                                        `<div class="col-12 pb-2">
+                                            <div class="card">
+                                            <div class="card-header d-flex justify-content-between deletar-comment">${element.get_autor}
+                                            <a href="/comments/change/${element.id}" class="editar-comment" title="Editar comentário">Editar</a>
+                                            </div>
+                                            <div class="card-body">
+                                            ${element.conteudo}
+                                            </div>
+                                            <div class="card-footer">Data: ${element.get_criado_em}</div>
+                                            </div>
+                                        </div>`
+                                            , {
+                                }));
+                            });
+                        }
+                    },
+                    error:function(e){
+                        alert('Error ao efetuar o login, verifique as credenciais de acesso.')
+                    }
+                })
+            $('#form-post').on('submit', function(){
+                event.preventDefault();
+
+                $.ajax({
+                    url: `/api/posts/${id}/`,
+                    method: 'PUT',
+                    dataType: 'json',
+                    data:$(this).serialize(),
+                    success: function(){
+                        $("#success").addClass('alert alert-success').text('Postagem atualizada com sucesso.')
+                        // setTimeout(function(){
+                        window.location.replace('/')
+
+                        // }, 500)
+                    },
+                    error: function(xhr, status, error) {
+                        let e = JSON.parse(xhr.responseText)
+                        $("#danger").addClass('alert alert-danger').text(e.errors.detalhes[0].message)
+                    }
+                })
+            })
+            $('#deletar-postagem').on('click', function(){
+                event.preventDefault();
+                $.ajax({
+                    url: `/api/posts/${id}/`,
+                    method: 'DELETE',
+                    dataType: 'json',
+                    success: function(){
+                        // let e = JSON.parse(xhr.responseText)
+                        $("#success").addClass('alert alert-success').text('Postagem deletada com sucesso.')
+                        setTimeout(function(){
+                            window.location.replace('/')
+
+                        }, 500)
+                    },
+                    error: function(xhr, status, error) {
+                        let e = JSON.parse(xhr.responseText)
+                        $("#danger").addClass('alert alert-danger').text(e.errors.detalhes[0].message)
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock main %}
+    

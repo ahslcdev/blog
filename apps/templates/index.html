@@ -1,0 +1,91 @@
+{% extends 'layout/base.html' %}
+
+{% block main %}
+
+<div class="content-posts">
+    {% include 'includes/messages.html' %}
+    <h3>Buscar por título, autor ou contéudo da postagem</h3>
+    <form class="form-inline mb-5">
+        <input class="form-control mr-sm-2 mb-2" type="search" id="input-buscar" placeholder="Buscar..." aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" id="buscar-postagem">Buscar</button>
+      </form>
+    <div class="row">
+        <div class="h4">Últimas postagens</div>
+    </div>
+</div>
+    
+{% include 'includes/scripts.html' %}
+    <script>
+        $(document).ready(function(){
+            $.ajax({
+                url: '/api/posts/',
+                dataType: 'json',
+                success: function(response){
+                    console.log(response)
+                    $.each(response, function(index, element) {
+                        var id = element.id
+                        $('.content-posts .row').append(
+                            $(
+                                `<div class="col-md-3 pb-2">
+                                    <a class="link-post" href="/post/change/${id}">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h5 class="card-title">${element.titulo}</h5>
+                                                <p>${element.get_data_publicacao}</p>
+                                            </div>
+                                            <div class="card-body">
+                                                <hr>
+                                                <span>${element.get_autor}</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>`
+                                    , {
+                        }));
+                    });
+                },
+                error: function(xhr, status, error) {
+                    let e = JSON.parse(xhr.responseText)
+                    alert(e.errors.detalhes[0])
+                }
+            })
+            $("#buscar-postagem").on('click', function(){
+                event.preventDefault()
+                $.ajax({
+                    url: '/api/posts/?search='+$('#input-buscar').val(),
+                    dataType: 'json',
+                    success: function(response){
+                        console.log(response)
+                        $(".content-posts .row .col-md-3").remove();
+                        $.each(response, function(index, element) {
+                            var id = element.id
+                            $('.content-posts .row').append(
+                                $(
+                                    `<div class="col-md-3 pb-2">
+                                        <a class="link-post" href="/post/change/${id}">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">${element.titulo}</h5>
+                                                    <p>${element.get_data_publicacao}</p>
+                                                </div>
+                                                <div class="card-body">
+                                                    <hr>
+                                                    <span>${element.get_autor}</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>`
+                                        , {
+                            }));
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        let e = JSON.parse(xhr.responseText)
+                        alert(e.errors.detalhes[0])
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock main %}
+    
