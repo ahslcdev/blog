@@ -15,7 +15,7 @@ class Comment(BaseModel):
     @property
     def get_autor(self) -> str:
         return self.autor.username
-
+    
     class Meta:
         verbose_name = 'Comentário'
         verbose_name_plural = 'Comentários'
@@ -48,6 +48,9 @@ class Post(BaseModel):
     @property
     def get_autor(self) -> str:
         return self.autor.username
+    
+    def __str__(self):
+        return self.titulo
     
     class Meta:
         verbose_name = 'Post'
