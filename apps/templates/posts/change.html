@@ -72,8 +72,9 @@
                             });
                         }
                     },
-                    error:function(e){
-                        alert('Error ao efetuar o login, verifique as credenciais de acesso.')
+                    error: function(xhr, status, error) {
+                        let e = JSON.parse(xhr.responseText)
+                        alert(e.errors.detalhes[0].message)
                     }
                 })
             $('#form-post').on('submit', function(){
@@ -93,7 +94,7 @@
                     },
                     error: function(xhr, status, error) {
                         let e = JSON.parse(xhr.responseText)
-                        $("#danger").addClass('alert alert-danger').text(e.errors.detalhes[0].message)
+                        alert(e.errors.detalhes[0].message)
                     }
                 })
             })
@@ -113,7 +114,7 @@
                     },
                     error: function(xhr, status, error) {
                         let e = JSON.parse(xhr.responseText)
-                        $("#danger").addClass('alert alert-danger').text(e.errors.detalhes[0].message)
+                        alert(e.errors.detalhes[0].message)
                     }
                 })
             })

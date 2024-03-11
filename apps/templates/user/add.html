@@ -72,8 +72,9 @@
                 alert('Usuário cadastrado com sucesso.')
                 window.location.replace('/autenticacao/login/')
             },
-            error: function(e){
-                alert('Error ao criar novo usuário.')
+            error: function(xhr, status, error) {
+                let e = JSON.parse(xhr.responseText)
+                alert(e.errors.detalhes[0].message)
             }
         })
     })

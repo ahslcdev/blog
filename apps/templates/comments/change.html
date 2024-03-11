@@ -34,11 +34,11 @@
                     dataType: 'json',
                     contentType: 'application/json',
                     success: function(response){
-                        console.log(response)
                         $("#conteudo_comment").val(response.conteudo)
                     },
-                    error:function(e){
-                        alert('Error ao efetuar o login, verifique as credenciais de acesso.')
+                    error: function(xhr, status, error) {
+                        let e = JSON.parse(xhr.responseText)
+                        alert(e.errors.detalhes[0].message)
                     }
                 })
             $('#form-comment').on('submit', function(){

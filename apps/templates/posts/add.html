@@ -41,7 +41,7 @@
                     },
                     error: function(xhr, status, error) {
                         let e = JSON.parse(xhr.responseText)
-                        console.log(e.errors.detalhes[0])
+                        alert(e.errors.detalhes[0].message)
                     }
                 })
             })

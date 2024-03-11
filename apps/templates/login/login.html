@@ -53,23 +53,21 @@
         $(document).ready(function(){
             $('#form-login').on('submit', function(){
 
-                // alert('pica')
                 event.preventDefault();
                 $.ajax({
                     url: '/autenticacao/login/',
                     method: 'POST',
                     dataType: 'json',
                     data:$(this).serialize(),
-                    success: function(){
-                        alert('Logado')
-                        window.location.replace('/')
+                    success: function(response, status, xhr){
+                        if (xhr.status == 404){
+                            alert("Credenciais de acesso inválidas.")
+                        }else{
+                            window.location.replace('/')
+                        }
                     },
                     error: function(xhr, status, error) {
-                        console.log(error)
-                        console.log(status)
-                        console.log(xhr.responseText)
-                        let e = JSON.parse(xhr.responseText)
-                        $("#danger").addClass('alert alert-danger').text(e.errors.detalhes[0].message)
+                        alert("Credenciais de acesso inválidas.")
                     }
                 })
             })
