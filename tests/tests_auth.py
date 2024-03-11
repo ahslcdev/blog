@@ -127,3 +127,159 @@ class TestAuthJWT(TestCase):
         }
         response = self.client.post(f'/autenticacao/token/refresh/', refresh)
         self.assertTrue(response.status_code == 200)
+
+
+class TestUsers(TestCase):
+    def setUp(self) -> None:
+        self.client = APIClient()
+        self.dados_cliente = {
+            "username":"teste2",
+            "password":"teste"
+        }
+        self.dados_vazio = {
+            "username":"",
+            "password":""
+        }
+        self.user = User.objects.create(
+            username="teste2",
+            password=make_password('teste'),
+            email="teste@gmail.com"
+        )
+
+        self.novo_user = User.objects.create(
+            username="teste23",
+            password=make_password('teste'),
+            email="teste3@gmail.com"
+        )
+        self.login = self.client.post(f'/autenticacao/token/', self.dados_cliente).json()
+        return super().setUp()
+
+    def test_create_user_success(self):
+        response = self.client.post(f'/api-users/users/', self.dados_cliente)
+        self.assertTrue(response.status_code, 201)
+
+    def test_create_user_error_400(self):
+        """ 
+        Teste de criação de usuário com o envio de dados vazio e com a tentativa de criação de usuario
+        com o username já existente
+        """
+        response = self.client.post(f'/api-users/users/', self.dados_vazio)
+        self.assertTrue(response.status_code, 400)
+
+        self.client.post(f'/api-users/users/', self.dados_cliente)
+        response = self.client.post(f'/api-users/users/', self.dados_cliente)
+        self.assertTrue(response.status_code, 400)
+
+    def test_create_user_error_400(self):
+        response = self.client.post(f'/api-users/users/', self.dados_vazio)
+        self.assertTrue(response.status_code, 400)
+
+    def test_users_list_success(self):
+        """ Teste de sucesso na listagem de usuários"""
+        response = self.client.get(f'/api-users/users/', {}, headers={"Authorization":f'Bearer {self.login.get("access")}'})
+        self.assertTrue(response.status_code == 200) 
+        self.assertTrue(isinstance(response.json(), list))
+
+    def test_users_retrieve_success(self):
+        """ Teste de sucesso na listagem de usuário específico """
+        response = self.client.get(f'/api-users/users/{self.user.id}/', {}, headers={"Authorization":f'Bearer {self.login.get("access")}'})
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(isinstance(response.json(), dict))
+
+    def test_users_retrieve_error(self):
+        """ Teste de error ao tentar acessar um usuário inexistente """
+        response = self.client.get(f'/api-users/users/150000000000/', {}, headers={"Authorization":f'Bearer {self.login.get("access")}'})
+        self.assertTrue(response.status_code == 404)
+        self.assertTrue(isinstance(response.json(), dict))
+
+    def test_users_update_success(self):
+        """ Teste de sucesso para atualizar um usuário """
+        email_antes = self.user.email
+        self.dados_cliente['email'] = 'teste2@gmail.com'
+        response = self.client.put(
+            f'/api-users/users/{self.user.id}/', 
+            json.dumps(self.dados_cliente),
+            content_type='application/json',
+            headers={
+                "Authorization":f'Bearer {self.login.get("access")}'
+            }
+        )
+        
+        self.assertTrue(response.status_code == 200)
+        self.assertTrue(isinstance(response.json(), dict))
+        self.assertTrue(email_antes != response.json().get('email'))
+
+    def test_users_update_error(self):
+        """ Teste de error para atualizar um usuário 
+            Neste teste serão verificadas 2 situações:
+            - 1: Tentar atualizar um usuário que não existe
+            - 2: Tentar atualizar um usuário de outro autor
+            Deve retornar 404 em ambas as situações.
+        """
+        self.dados_cliente['email'] = 'teste@gmail.com'
+
+        # Atualizar usuário que não existe
+        response = self.client.put(
+            f'/api-users/users/500000/', 
+            json.dumps(self.dados_cliente),
+            content_type='application/json',
+            headers={
+                "Authorization":f'Bearer {self.login.get("access")}'
+            }
+        )
+        self.assertTrue(response.status_code == 404)
+        self.assertTrue(isinstance(response.json(), dict))
+
+        # Atualizar usuário de outro usuário
+        response = self.client.put(
+            f'/api-users/users/{self.novo_user.id}/', 
+            json.dumps(self.dados_cliente),
+            content_type='application/json',
+            headers={
+                "Authorization":f'Bearer {self.login.get("access")}'
+            }
+        )
+        self.assertTrue(response.status_code == 404)
+        self.assertTrue(isinstance(response.json(), dict))
+
+    def test_users_delete_success(self):
+        """ Teste de sucesso para deletar um usuário """
+        response = self.client.delete(
+            f'/api-users/users/{self.user.id}', 
+            # content_type='application/json',
+            headers={
+                "Authorization":f'Bearer {self.login.get("access")}'
+            }
+        )
+        self.assertTrue(response.status_code == 301)
+
+    def test_users_delete_error(self):
+        """ Teste de error para deletar um usuário 
+            Neste teste serão verificadas 2 situações:
+            - 1: Tentar deletar um usuário que não existe
+            - 2: Tentar deletar um usuário de outro autor
+            Deve retornar 404 em ambas as situações.
+        """
+        # Deletar postagem que não existe
+        response = self.client.delete(
+            f'/api-users/users/500000/', 
+            content_type='application/json',
+            headers={
+                "Authorization":f'Bearer {self.login.get("access")}'
+            }
+        )
+        self.assertTrue(response.status_code == 404)
+        self.assertTrue(isinstance(response.json(), dict))
+
+        # Deletar postagem de outro autor
+        response = self.client.delete(
+            f'/api-users/users/{self.novo_user.id}/', 
+            content_type='application/json',
+            headers={
+                "Authorization":f'Bearer {self.login.get("access")}'
+            }
+        )
+        self.assertTrue(response.status_code == 404)
+        self.assertTrue(isinstance(response.json(), dict))
+
+        
