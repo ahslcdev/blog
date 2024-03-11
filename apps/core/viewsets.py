@@ -21,6 +21,10 @@ class PostViewSet(ModelViewSet):
     filterset_class = PostFilter
     
     def get_queryset(self):
+        """
+        Override do get_queryset com o objetivo de filtrar as postagens
+        com data de publicação maior que data atual.
+        """
         queryset = super().get_queryset().filter(
             data_publicacao__lte=make_aware(datetime.datetime.now())
         ).prefetch_related('id_comentarios').only('id', 'titulo', 'autor', 'data_publicacao')
@@ -29,6 +33,7 @@ class PostViewSet(ModelViewSet):
         return queryset
 
     def get_serializer_class(self):
+        """ Dependendo do entpoint, é retornado uma class Serializer """
         if self.action == 'retrieve':
             return PostSerializerGET
         elif self.action in ['update', 'create']:
@@ -38,12 +43,17 @@ class PostViewSet(ModelViewSet):
     @method_decorator(cache_page(30))
     @method_decorator(vary_on_cookie)
     def list(self, request, *args, **kwargs):
+        """ Esta viewset foi reescrita devido a utilização dos filtros """
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, 200)
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        """ 
+        Para está viewset não é necessário enviar o campo AUTOR,
+        pois este campo já é capturado pelo usuário logado
+        """
         request.data['autor'] = request.user.id
         return super().create(request, *args, **kwargs)
     
@@ -55,16 +65,17 @@ class PostViewSet(ModelViewSet):
     @method_decorator(vary_on_cookie)
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-        # queryset = super().get_queryset().filter(id=self.get_object().id).prefetch_related('id_comentarios')
-        # serializer = self.get_serializer(queryset, many=True)
-        # return Response(serializer.data, status=200)
 
-    
+
 class CommentsViewSet(ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentsSerializer
 
     def get_queryset(self):
+        """
+        Override do get_queryset para que em algumas viewsets sejam retornadas queries diferentes
+        de acordo com o usuário logado.
+        """
         queryset = super().get_queryset().select_related('autor').only('id', 'autor', 'conteudo')
         if self.action not in ['list', 'retrieve']:
             return queryset.filter(autor=self.request.user)
@@ -72,6 +83,12 @@ class CommentsViewSet(ModelViewSet):
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
+        """ 
+        Para está viewset não é necessário enviar o campo AUTOR,
+        pois este campo já é capturado pelo usuário logado
+        Deve-se enviar um atributo id_postagem, que é o id da postagem
+        a qual quer associar este comentário.
+        """
         request.data['autor'] = request.user.id
 
         serializer = self.get_serializer(data=request.data)
