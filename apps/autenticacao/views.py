@@ -21,7 +21,7 @@ def login_page(request):
         if senha != None and usuario != None:
             user = authenticate(request, username=usuario, password=senha)
             if user is None:
-                return HttpResponse('Usuario não cadastrado, favor checar suas credenciais!', status=404)
+                return Response(status=404)
             else:
                 login(request, user)
                 return Response(200)
