@@ -195,16 +195,14 @@ class TestPosts(TestCase):
     def test_post_delete_success(self):
         """ Teste de sucesso para deletar uma postagem """
         self.dados_post_success['autor'] = self.user.id
-        response = self.client.put(
+        response = self.client.delete(
             f'/api/posts/{self.postagem.id}/', 
             content_type='application/json',
             headers={
                 "Authorization":f'Bearer {self.login.get("access")}'
             }
         )
-        
-        self.assertTrue(response.status_code == 200)
-        self.assertTrue(isinstance(response.json(), dict))
+        self.assertTrue(response.status_code == 204)
 
     def test_post_delete_error(self):
         """ Teste de error para deletar uma postagem 
@@ -216,7 +214,7 @@ class TestPosts(TestCase):
         self.dados_post_success['autor'] = self.user.id
 
         # Deletar postagem que não existe
-        response = self.client.put(
+        response = self.client.delete(
             f'/api/posts/500000/', 
             content_type='application/json',
             headers={
@@ -227,7 +225,7 @@ class TestPosts(TestCase):
         self.assertTrue(isinstance(response.json(), dict))
 
         # Deletar postagem de outro autor
-        response = self.client.put(
+        response = self.client.delete(
             f'/api/posts/{self.postagem_novo_autor.id}/', 
             content_type='application/json',
             headers={
@@ -409,7 +407,7 @@ class TestComments(TestCase):
     def test_comments_delete_success(self):
         """ Teste de sucesso para deletar um comentario """
         self.dados_comment_success['autor'] = self.user.id
-        response = self.client.put(
+        response = self.client.delete(
             f'/api/comments/{self.comentario.id}/', 
             content_type='application/json',
             headers={
@@ -417,8 +415,7 @@ class TestComments(TestCase):
             }
         )
         
-        self.assertTrue(response.status_code == 200)
-        self.assertTrue(isinstance(response.json(), dict))
+        self.assertTrue(response.status_code == 204)
 
     def test_comments_delete_error(self):
         """ Teste de error para deletar um comentario 
@@ -430,7 +427,7 @@ class TestComments(TestCase):
         self.dados_comment_success['autor'] = self.user.id
 
         # Deletar comentario que não existe
-        response = self.client.put(
+        response = self.client.delete(
             f'/api/comments/500000/', 
             content_type='application/json',
             headers={
