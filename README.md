@@ -22,6 +22,7 @@
 ## Considerações iniciais
 - A aplicação possui 2 endpoints para login e logout, isso se deve ao fato de que foram utilizadas SESSION e JWT para view e viewsets respectivamente.
 - A API possui funcionalidades que não estão disponíveis em tela apenas através do Swagger ou então de consumo pelo Insomnia ou Postman
+- O atributo data_publicacao foi considerado como um campo que pode ser modificado, para servir como um atributo que permite o agendamento de postagens, então se criar uma postagem para uma data futura, a mesma não será exibida até as datas baterem.
 
 ## Funcionalidades implementas
 ### Solicitadas
